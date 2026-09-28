@@ -787,13 +787,13 @@
             <label>Categoría *</label>
             <select id="category" required>
               <option value="">Seleccionar...</option>
-              <option>SAP</option>
               <option>Cotizador</option>
-              <option>Red</option>
-              <option>Hardware</option>
-              <option>Software</option>
-              <option>Proceso</option>
               <option>CRM Harmony</option>
+              <option>Hardware</option>
+              <option>Proceso</option>
+              <option>Red</option>
+              <option>SAP</option>
+              <option>Software</option>
               <option>Otro</option>
             </select>
           </div>
@@ -882,14 +882,15 @@
     let currentDetailArticle = null;
     let currentAttachments = []; // { name, url }
 
+    // Categorías ordenadas alfabéticamente
     const CATEGORIES = [
-      { name: 'SAP', color: 'cat-1', desc: 'Módulos y errores' },
       { name: 'Cotizador', color: 'cat-2', desc: 'Configuración y uso' },
-      { name: 'Red', color: 'cat-3', desc: 'Conectividad y VPN' },
+      { name: 'CRM Harmony', color: 'cat-6', desc: 'CRM y gestión' },
       { name: 'Hardware', color: 'cat-4', desc: 'Equipos y periféricos' },
-      { name: 'Software', color: 'cat-5', desc: 'Aplicaciones' },
       { name: 'Proceso', color: 'cat-1', desc: 'Flujos y políticas' },
-      { name: 'CRM Harmony', color: 'cat-6', desc: 'CRM y gestión' }
+      { name: 'Red', color: 'cat-3', desc: 'Conectividad y VPN' },
+      { name: 'SAP', color: 'cat-1', desc: 'Módulos y errores' },
+      { name: 'Software', color: 'cat-5', desc: 'Aplicaciones' }
     ];
 
     // ===== LOCAL STORAGE =====
