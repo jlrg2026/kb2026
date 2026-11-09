@@ -671,6 +671,44 @@
     .sync-indicator.error { background: var(--danger); }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+    /* ===== REPORTES PDF (NUEVO) ===== */
+    .report-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px); display: none;
+      align-items: center; justify-content: center;
+      z-index: 350; padding: 20px; overflow-y: auto;
+    }
+    .report-overlay.active { display: flex; }
+    .report-modal {
+      background: var(--bg-sidebar); width: 100%; max-width: 720px;
+      max-height: 92vh; border-radius: 16px;
+      overflow-y: auto; padding: 24px;
+      box-shadow: var(--shadow-lg); margin: auto;
+      animation: slideUp 0.3s ease;
+    }
+    body.dark .report-modal { color: var(--text); }
+    .report-options {
+      display: flex; flex-direction: column; gap: 4px;
+      background: var(--bg-body); padding: 12px 14px;
+      border-radius: 10px; border: 1px solid var(--border);
+    }
+    .report-option {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; font-weight: 500; color: var(--text);
+      cursor: pointer; padding: 4px 0; text-transform: none;
+    }
+    .report-option input[type="checkbox"] {
+      width: 18px; height: 18px; padding: 0; margin: 0;
+      accent-color: var(--primary); cursor: pointer;
+      flex-shrink: 0; border: 1px solid var(--border); border-radius: 4px;
+    }
+    #reportPreview {
+      padding: 12px; background: var(--bg-body);
+      border-radius: 10px; font-size: 13px;
+      color: var(--text-secondary); margin-bottom: 16px;
+      text-align: center; border: 1px solid var(--border);
+    }
+
     /* RESPONSIVE */
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
@@ -742,6 +780,10 @@
         <div class="header-actions">
           <div class="header-icon" title="Modo oscuro" onclick="toggleDark()">
             <svg id="darkIcon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+          </div>
+          <!-- BOTÓN REPORTES PDF (NUEVO) -->
+          <div class="header-icon" title="Reportes PDF" onclick="openReportModal()">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
           </div>
           <div class="user-profile">
             <div class="user-avatar">JLR</div>
@@ -928,6 +970,90 @@
           Eliminar
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE REPORTES PDF (NUEVO) -->
+  <div class="report-overlay" id="reportOverlay">
+    <div class="report-modal">
+      <div class="modal-header">
+        <h2>📊 Generar Reporte PDF</h2>
+        <button class="close-btn" onclick="closeReportModal()">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoría</label>
+          <select id="reportCategory" onchange="updateReportPreview()">
+            <option value="">Todas</option>
+            <option>Cotizador</option>
+            <option>CRM Harmony</option>
+            <option>DERMAVANLAB</option>
+            <option>Hardware</option>
+            <option>POWER BI</option>
+            <option>Proceso</option>
+            <option>Red</option>
+            <option>SAP</option>
+            <option>Software</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Prioridad</label>
+          <select id="reportPriority" onchange="updateReportPreview()">
+            <option value="">Todas</option>
+            <option>Alta</option>
+            <option>Media</option>
+            <option>Baja</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Estado</label>
+          <select id="reportStatus" onchange="updateReportPreview()">
+            <option value="">Todos</option>
+            <option>Abierto</option>
+            <option>En progreso</option>
+            <option>Resuelto</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Búsqueda de texto</label>
+          <input type="text" id="reportSearch" placeholder="Título, descripción, solución..." oninput="updateReportPreview()">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha desde (Actualizado)</label>
+          <input type="date" id="reportDateFrom" onchange="updateReportPreview()">
+        </div>
+        <div class="form-group">
+          <label>Fecha hasta (Actualizado)</label>
+          <input type="date" id="reportDateTo" onchange="updateReportPreview()">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contenido del reporte</label>
+        <div class="report-options">
+          <label class="report-option"><input type="checkbox" id="reportIncDesc" checked> Incluir Descripción del problema</label>
+          <label class="report-option"><input type="checkbox" id="reportIncSol" checked> Incluir Solución / Procedimiento</label>
+          <label class="report-option"><input type="checkbox" id="reportIncNotas"> Incluir Notas adicionales</label>
+          <label class="report-option"><input type="checkbox" id="reportIncAttach"> Incluir enlaces de adjuntos</label>
+        </div>
+      </div>
+
+      <div id="reportPreview">Configure los filtros y presione "Generar PDF"</div>
+
+      <button type="button" class="btn btn-primary" onclick="generateReportPDF()">
+        <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+        Generar PDF
+      </button>
     </div>
   </div>
 
@@ -1721,6 +1847,175 @@
         return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
       });
     }
+
+    // ===== REPORTES PDF (NUEVO) =====
+    function openReportModal() {
+      document.getElementById('reportCategory').value = '';
+      document.getElementById('reportPriority').value = '';
+      document.getElementById('reportStatus').value = '';
+      document.getElementById('reportSearch').value = '';
+      document.getElementById('reportDateFrom').value = '';
+      document.getElementById('reportDateTo').value = '';
+      document.getElementById('reportIncDesc').checked = true;
+      document.getElementById('reportIncSol').checked = true;
+      document.getElementById('reportIncNotas').checked = false;
+      document.getElementById('reportIncAttach').checked = false;
+      updateReportPreview();
+      document.getElementById('reportOverlay').classList.add('active');
+    }
+    function closeReportModal() {
+      document.getElementById('reportOverlay').classList.remove('active');
+    }
+    function getReportFilteredArticles() {
+      let filtered = allArticles.slice();
+      const cat = document.getElementById('reportCategory').value;
+      const prio = document.getElementById('reportPriority').value;
+      const status = document.getElementById('reportStatus').value;
+      const search = document.getElementById('reportSearch').value.trim().toLowerCase();
+      const from = document.getElementById('reportDateFrom').value;
+      const to = document.getElementById('reportDateTo').value;
+
+      if (cat) filtered = filtered.filter(function(a) { return a['Categoría'] === cat; });
+      if (prio) filtered = filtered.filter(function(a) { return a['Prioridad'] === prio; });
+      if (status) filtered = filtered.filter(function(a) { return a['Estado'] === status; });
+      if (search) {
+        filtered = filtered.filter(function(a) {
+          return (a['Título'] || '').toLowerCase().indexOf(search) !== -1 ||
+            (a['Descripción'] || '').toLowerCase().indexOf(search) !== -1 ||
+            (a['Solución'] || '').toLowerCase().indexOf(search) !== -1;
+        });
+      }
+      if (from) {
+        const d = new Date(from);
+        filtered = filtered.filter(function(a) {
+          return a['Actualizado'] && new Date(a['Actualizado']) >= d;
+        });
+      }
+      if (to) {
+        const d = new Date(to); d.setHours(23, 59, 59, 999);
+        filtered = filtered.filter(function(a) {
+          return a['Actualizado'] && new Date(a['Actualizado']) <= d;
+        });
+      }
+      return filtered;
+    }
+    function updateReportPreview() {
+      const count = getReportFilteredArticles().length;
+      const preview = document.getElementById('reportPreview');
+      if (preview) {
+        preview.innerHTML = '📄 <strong>' + count + '</strong> artículo' + (count !== 1 ? 's' : '') + ' coincide' + (count !== 1 ? 'n' : '') + ' con los filtros seleccionados';
+      }
+    }
+    function generateReportPDF() {
+      const filtered = getReportFilteredArticles();
+      if (filtered.length === 0) {
+        showToast('⚠️ No hay artículos que coincidan con los filtros');
+        return;
+      }
+
+      const incDesc = document.getElementById('reportIncDesc').checked;
+      const incSol = document.getElementById('reportIncSol').checked;
+      const incNotas = document.getElementById('reportIncNotas').checked;
+      const incAttach = document.getElementById('reportIncAttach').checked;
+
+      const cat = document.getElementById('reportCategory').value || 'Todas';
+      const prio = document.getElementById('reportPriority').value || 'Todas';
+      const status = document.getElementById('reportStatus').value || 'Todos';
+      const from = document.getElementById('reportDateFrom').value;
+      const to = document.getElementById('reportDateTo').value;
+      const search = document.getElementById('reportSearch').value.trim();
+
+      let filtersList = [];
+      filtersList.push('Categoría: ' + cat);
+      filtersList.push('Prioridad: ' + prio);
+      filtersList.push('Estado: ' + status);
+      if (from) filtersList.push('Desde: ' + from);
+      if (to) filtersList.push('Hasta: ' + to);
+      if (search) filtersList.push('Búsqueda: "' + search + '"');
+
+      const articlesHtml = filtered.map(function(a, i) {
+        let html = '<div class="article-print">';
+        html += '<h3>' + (i + 1) + '. ' + escapeHtml(a['Título']) + '</h3>';
+        html += '<div class="print-meta">';
+        html += '<span>' + escapeHtml(a['Categoría'] || 'General') + '</span>';
+        html += '<span>Prioridad: ' + (a['Prioridad'] || 'Media') + '</span>';
+        html += '<span>Estado: ' + (a['Estado'] || 'Resuelto') + '</span>';
+        if (a['Actualizado']) html += '<span>Actualizado: ' + new Date(a['Actualizado']).toLocaleDateString('es-MX') + '</span>';
+        html += '</div>';
+
+        if (incDesc) {
+          html += '<h4>Descripción del problema</h4>';
+          html += '<p>' + escapeHtml(a['Descripción'] || '—') + '</p>';
+        }
+        if (incSol) {
+          html += '<h4>Solución / Procedimiento</h4>';
+          html += '<p>' + escapeHtml(a['Solución'] || '—') + '</p>';
+        }
+        if (incNotas && a['Notas']) {
+          html += '<h4>Notas adicionales</h4>';
+          html += '<p>' + escapeHtml(a['Notas']) + '</p>';
+        }
+        if (incAttach) {
+          try {
+            const atts = typeof a['Adjuntos'] === 'string' ? JSON.parse(a['Adjuntos']) : (a['Adjuntos'] || []);
+            if (atts && atts.length > 0) {
+              html += '<h4>Adjuntos</h4><ul>';
+              atts.forEach(function(f) {
+                html += '<li><a href="' + f.url + '">' + escapeHtml(f.name) + '</a> - ' + escapeHtml(f.url) + '</li>';
+              });
+              html += '</ul>';
+            }
+          } catch(e) {}
+        }
+        html += '</div>';
+        return html;
+      }).join('');
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(
+        '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte Knowledge Base - ' + new Date().toLocaleDateString('es-MX') + '</title>' +
+        '<style>' +
+        '@page { margin: 15mm; }' +
+        'body{font-family:Arial,sans-serif;color:#2d3748;max-width:100%;margin:0;font-size:12px;}' +
+        '.header-report{border-bottom:3px solid #0078d4;padding-bottom:16px;margin-bottom:20px;}' +
+        '.header-report h1{font-size:22px;color:#0078d4;margin-bottom:4px;}' +
+        '.header-report .subtitle{font-size:12px;color:#718096;}' +
+        '.filters-box{background:#f0f2f5;padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:11px;}' +
+        '.filters-box strong{color:#2d3748;}' +
+        '.filters-box ul{margin:6px 0 0 0;padding-left:20px;}' +
+        '.filters-box li{margin:2px 0;color:#4a5568;}' +
+        '.article-print{page-break-inside:avoid;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;margin-bottom:14px;}' +
+        '.article-print h3{font-size:14px;color:#1e3a5f;margin-bottom:8px;}' +
+        '.article-print .print-meta{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;}' +
+        '.article-print .print-meta span{display:inline-block;font-size:10px;padding:2px 8px;background:#e6f2fc;color:#0078d4;border-radius:4px;margin-right:6px;font-weight:600;margin-bottom:4px;}' +
+        '.article-print h4{font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px;}' +
+        '.article-print p{font-size:12px;line-height:1.5;white-space:pre-wrap;margin:0;}' +
+        '.article-print ul{margin:4px 0;padding-left:20px;font-size:11px;}' +
+        '.article-print li{margin:2px 0;}' +
+        '.article-print a{color:#0078d4;word-break:break-all;}' +
+        '.footer-report{margin-top:30px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:10px;color:#a0aec0;text-align:center;}' +
+        '</style></head><body>' +
+        '<div class="header-report">' +
+        '<h1>📊 Reporte Knowledge Base</h1>' +
+        '<div class="subtitle">Generado el ' + new Date().toLocaleString('es-MX') + ' · ' + filtered.length + ' artículo' + (filtered.length !== 1 ? 's' : '') + '</div>' +
+        '</div>' +
+        '<div class="filters-box">' +
+        '<strong>Filtros aplicados:</strong>' +
+        '<ul>' + filtersList.map(function(f) { return '<li>' + escapeHtml(f) + '</li>'; }).join('') + '</ul>' +
+        '</div>' +
+        articlesHtml +
+        '<div class="footer-report">Knowledge Base DERMAVAN · Reporte generado automáticamente</div>' +
+        '</body></html>'
+      );
+      printWindow.document.close();
+      setTimeout(function() { printWindow.print(); }, 500);
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const ov = document.getElementById('reportOverlay');
+        if (ov && ov.classList.contains('active')) closeReportModal();
+      }
+    });
 
     // ===== INIT =====
     function init() {
