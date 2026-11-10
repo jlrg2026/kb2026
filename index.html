@@ -1090,9 +1090,9 @@
     let currentSearch = '';
     let currentSort = 'recent';
     let showOnlyBookmarks = false;
-    let currentStatFilter = null; // 'total' | 'resolved' | 'open' | 'high' | null
+    let currentStatFilter = null;
     let currentDetailArticle = null;
-    let currentAttachments = []; // { name, url }
+    let currentAttachments = [];
 
     // Categorías ordenadas alfabéticamente
     const CATEGORIES = [
@@ -1280,23 +1280,19 @@
 
     // ===== FILTRO POR STATS =====
     function filterByStat(stat) {
-      // Si se hace clic en el mismo stat activo, se quita el filtro
       if (currentStatFilter === stat) {
         clearStatFilter();
         return;
       }
       currentStatFilter = stat;
-      // Limpiar otros filtros para evitar combinaciones confusas
       currentCategoryFilter = null;
       currentSearch = '';
       showOnlyBookmarks = false;
       document.getElementById('searchInput').value = '';
-      // Actualizar UI
       updateStatCardsUI();
       updateFilterBanner();
       document.getElementById('articlesTitle').textContent = '📊 ' + (STAT_LABELS[stat] || 'Filtro');
       renderArticles();
-      // Scroll a la sección de artículos
       const grid = document.querySelector('.articles-grid');
       if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -1445,7 +1441,6 @@
       if (currentCategoryFilter) {
         filtered = filtered.filter(function(a) { return a['Categoría'] === currentCategoryFilter; });
       }
-      // Filtro por stat del dashboard
       if (currentStatFilter === 'resolved') {
         filtered = filtered.filter(function(a) { return a['Estado'] === 'Resuelto'; });
       } else if (currentStatFilter === 'open') {
@@ -1453,7 +1448,6 @@
       } else if (currentStatFilter === 'high') {
         filtered = filtered.filter(function(a) { return a['Prioridad'] === 'Alta'; });
       }
-      // 'total' no filtra nada (muestra todos)
       if (currentSearch) {
         const s = currentSearch.toLowerCase();
         filtered = filtered.filter(function(a) {
@@ -1497,7 +1491,6 @@
         const date = a['Actualizado'] ? new Date(a['Actualizado']).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) : '';
         const marked = isBookmarked(a['ID']);
 
-        // Contar adjuntos
         let attachCount = 0;
         try {
           const atts = typeof a['Adjuntos'] === 'string' ? JSON.parse(a['Adjuntos']) : (a['Adjuntos'] || []);
@@ -1668,7 +1661,6 @@
     function addAttachmentRow(name, url) {
       currentAttachments.push({ name: name || '', url: url || '' });
       renderAttachments();
-      // Enfocar el primer input del último row agregado
       setTimeout(function() {
         const rows = document.querySelectorAll('#attachmentsContainer .attachment-form-row');
         if (rows.length > 0) {
@@ -1713,7 +1705,6 @@
       submitBtn.innerHTML = '⏳ Guardando...';
 
       try {
-        // Filtrar adjuntos vacíos
         const attachments = currentAttachments.filter(function(att) {
           return att.url && att.url.trim().length > 0;
         }).map(function(att) {
