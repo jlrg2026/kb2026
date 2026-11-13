@@ -671,7 +671,7 @@
     .sync-indicator.error { background: var(--danger); }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* ===== REPORTES PDF (NUEVO) ===== */
+    /* ===== REPORTES PDF ===== */
     .report-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.6);
       backdrop-filter: blur(4px); display: none;
@@ -680,7 +680,7 @@
     }
     .report-overlay.active { display: flex; }
     .report-modal {
-      background: var(--bg-sidebar); width: 100%; max-width: 720px;
+      background: var(--bg-sidebar); width: 100%; max-width: 760px;
       max-height: 92vh; border-radius: 16px;
       overflow-y: auto; padding: 24px;
       box-shadow: var(--shadow-lg); margin: auto;
@@ -692,6 +692,7 @@
       background: var(--bg-body); padding: 12px 14px;
       border-radius: 10px; border: 1px solid var(--border);
     }
+    .report-options.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
     .report-option {
       display: flex; align-items: center; gap: 10px;
       font-size: 14px; font-weight: 500; color: var(--text);
@@ -702,11 +703,35 @@
       accent-color: var(--primary); cursor: pointer;
       flex-shrink: 0; border: 1px solid var(--border); border-radius: 4px;
     }
+    .report-section-title {
+      font-size: 11px; font-weight: 700; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin: 20px 0 12px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .report-section-title.first { margin-top: 0; }
+    .report-quick { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 16px; }
+    .report-chip {
+      font-size: 12px; font-weight: 600; font-family: inherit;
+      padding: 6px 12px; border-radius: 16px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--bg-body);
+      color: var(--text-secondary); transition: all 0.2s;
+    }
+    .report-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .report-reset {
+      background: none; border: none; color: var(--primary);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: inherit; padding: 4px 0; margin-bottom: 12px;
+    }
+    .report-reset:hover { text-decoration: underline; }
     #reportPreview {
       padding: 12px; background: var(--bg-body);
       border-radius: 10px; font-size: 13px;
-      color: var(--text-secondary); margin-bottom: 16px;
+      color: var(--text-secondary); margin: 16px 0;
       text-align: center; border: 1px solid var(--border);
+    }
+    @media (max-width: 600px) {
+      .report-options.cols { grid-template-columns: 1fr; }
     }
 
     /* RESPONSIVE */
@@ -781,7 +806,7 @@
           <div class="header-icon" title="Modo oscuro" onclick="toggleDark()">
             <svg id="darkIcon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
           </div>
-          <!-- BOTÓN REPORTES PDF (NUEVO) -->
+          <!-- BOTÓN REPORTES PDF -->
           <div class="header-icon" title="Reportes PDF" onclick="openReportModal()">
             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
           </div>
@@ -974,7 +999,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE REPORTES PDF (NUEVO) -->
+  <!-- MODAL DE REPORTES PDF -->
   <div class="report-overlay" id="reportOverlay">
     <div class="report-modal">
       <div class="modal-header">
@@ -983,6 +1008,8 @@
           <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
       </div>
+
+      <div class="report-section-title first">1 · Filtros</div>
 
       <div class="form-row">
         <div class="form-group">
@@ -1021,11 +1048,30 @@
             <option>Abierto</option>
             <option>En progreso</option>
             <option>Resuelto</option>
+            <option value="__pending">Pendientes (Abierto + En progreso)</option>
           </select>
         </div>
         <div class="form-group">
           <label>Búsqueda de texto</label>
-          <input type="text" id="reportSearch" placeholder="Título, descripción, solución..." oninput="updateReportPreview()">
+          <input type="text" id="reportSearch" placeholder="Título, descripción, solución, notas..." oninput="updateReportPreview()">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Adjuntos</label>
+          <select id="reportAttachFilter" onchange="updateReportPreview()">
+            <option value="">Todos</option>
+            <option value="with">Solo con adjuntos</option>
+            <option value="without">Solo sin adjuntos</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Favoritos</label>
+          <select id="reportFavFilter" onchange="updateReportPreview()">
+            <option value="">Todos los artículos</option>
+            <option value="fav">Solo favoritos ⭐</option>
+          </select>
         </div>
       </div>
 
@@ -1039,14 +1085,88 @@
           <input type="date" id="reportDateTo" onchange="updateReportPreview()">
         </div>
       </div>
+      <div class="report-quick">
+        <button type="button" class="report-chip" onclick="setReportDatePreset('today')">Hoy</button>
+        <button type="button" class="report-chip" onclick="setReportDatePreset('7')">Últimos 7 días</button>
+        <button type="button" class="report-chip" onclick="setReportDatePreset('30')">Últimos 30 días</button>
+        <button type="button" class="report-chip" onclick="setReportDatePreset('month')">Este mes</button>
+        <button type="button" class="report-chip" onclick="setReportDatePreset('year')">Este año</button>
+        <button type="button" class="report-chip" onclick="setReportDatePreset('')">Sin límite</button>
+      </div>
+      <button type="button" class="report-reset" onclick="resetReportFilters()">↺ Limpiar todos los filtros</button>
 
+      <div class="report-section-title">2 · Orden y agrupación</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ordenar por</label>
+          <select id="reportSort" onchange="updateReportPreview()">
+            <option value="recent">Más recientes primero</option>
+            <option value="oldest">Más antiguos primero</option>
+            <option value="priority">Prioridad (Alta → Baja)</option>
+            <option value="title">Título (A-Z)</option>
+            <option value="category">Categoría (A-Z)</option>
+            <option value="status">Estado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Agrupar por</label>
+          <select id="reportGroupBy" onchange="updateReportPreview()">
+            <option value="">Sin agrupar</option>
+            <option value="category">Categoría</option>
+            <option value="priority">Prioridad</option>
+            <option value="status">Estado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="report-section-title">3 · Formato del documento</div>
       <div class="form-group">
-        <label>Contenido del reporte</label>
-        <div class="report-options">
-          <label class="report-option"><input type="checkbox" id="reportIncDesc" checked> Incluir Descripción del problema</label>
-          <label class="report-option"><input type="checkbox" id="reportIncSol" checked> Incluir Solución / Procedimiento</label>
-          <label class="report-option"><input type="checkbox" id="reportIncNotas"> Incluir Notas adicionales</label>
-          <label class="report-option"><input type="checkbox" id="reportIncAttach"> Incluir enlaces de adjuntos</label>
+        <label>Título del reporte</label>
+        <input type="text" id="reportTitle" placeholder="Reporte Knowledge Base" maxlength="120">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Elaborado por</label>
+          <input type="text" id="reportAuthor" placeholder="Nombre (opcional)" maxlength="80">
+        </div>
+        <div class="form-group">
+          <label>Diseño</label>
+          <select id="reportLayout">
+            <option value="detailed">Detallado (artículo por artículo)</option>
+            <option value="table">Tabla resumen compacta</option>
+            <option value="both">Tabla resumen + detalle</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tamaño de hoja</label>
+          <select id="reportPaper">
+            <option value="letter">Carta</option>
+            <option value="A4">A4</option>
+            <option value="legal">Oficio</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Orientación</label>
+          <select id="reportOrientation">
+            <option value="portrait">Vertical</option>
+            <option value="landscape">Horizontal</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="report-section-title">4 · Contenido</div>
+      <div class="form-group">
+        <div class="report-options cols">
+          <label class="report-option"><input type="checkbox" id="reportIncCover" checked> Resumen ejecutivo y gráficas</label>
+          <label class="report-option"><input type="checkbox" id="reportIncIndex" checked> Índice de artículos</label>
+          <label class="report-option"><input type="checkbox" id="reportIncDesc" checked> Descripción del problema</label>
+          <label class="report-option"><input type="checkbox" id="reportIncSol" checked> Solución / Procedimiento</label>
+          <label class="report-option"><input type="checkbox" id="reportIncNotas"> Notas adicionales</label>
+          <label class="report-option"><input type="checkbox" id="reportIncAttach"> Enlaces de adjuntos</label>
+          <label class="report-option"><input type="checkbox" id="reportIncId"> ID del artículo</label>
+          <label class="report-option"><input type="checkbox" id="reportIncFilters" checked> Filtros aplicados</label>
         </div>
       </div>
 
@@ -1843,18 +1963,79 @@
       });
     }
 
-    // ===== REPORTES PDF (NUEVO) =====
-    function openReportModal() {
+    // =====================================================================
+    // ===== REPORTES PDF (VERSIÓN PROFESIONAL) ============================
+    // =====================================================================
+    const REPORT_PRIO_ORDER = { 'Alta': 0, 'Media': 1, 'Baja': 2 };
+    const REPORT_STATUS_ORDER = { 'Abierto': 0, 'En progreso': 1, 'Resuelto': 2 };
+
+    function reportGetAtts(a) {
+      try {
+        const atts = typeof a['Adjuntos'] === 'string' ? JSON.parse(a['Adjuntos'] || '[]') : (a['Adjuntos'] || []);
+        return Array.isArray(atts) ? atts.filter(function(f) { return f && f.url; }) : [];
+      } catch(e) { return []; }
+    }
+    function reportSafeUrl(u) {
+      u = String(u || '').trim();
+      return /^https?:\/\//i.test(u) ? u : '#';
+    }
+    function reportFmtDate(v) {
+      if (!v) return '—';
+      const d = new Date(v);
+      if (isNaN(d.getTime())) return '—';
+      return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    function reportDateInput(d) {
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return d.getFullYear() + '-' + m + '-' + day;
+    }
+    function setReportDatePreset(p) {
+      const from = document.getElementById('reportDateFrom');
+      const to = document.getElementById('reportDateTo');
+      const now = new Date();
+      if (!p) { from.value = ''; to.value = ''; }
+      else if (p === 'today') { from.value = reportDateInput(now); to.value = reportDateInput(now); }
+      else if (p === 'month') {
+        from.value = reportDateInput(new Date(now.getFullYear(), now.getMonth(), 1));
+        to.value = reportDateInput(now);
+      } else if (p === 'year') {
+        from.value = reportDateInput(new Date(now.getFullYear(), 0, 1));
+        to.value = reportDateInput(now);
+      } else {
+        const d = new Date(now); d.setDate(d.getDate() - parseInt(p, 10));
+        from.value = reportDateInput(d);
+        to.value = reportDateInput(now);
+      }
+      updateReportPreview();
+    }
+    function resetReportFilters() {
       document.getElementById('reportCategory').value = '';
       document.getElementById('reportPriority').value = '';
       document.getElementById('reportStatus').value = '';
       document.getElementById('reportSearch').value = '';
+      document.getElementById('reportAttachFilter').value = '';
+      document.getElementById('reportFavFilter').value = '';
       document.getElementById('reportDateFrom').value = '';
       document.getElementById('reportDateTo').value = '';
+      updateReportPreview();
+    }
+    function openReportModal() {
+      resetReportFilters();
+      document.getElementById('reportSort').value = 'recent';
+      document.getElementById('reportGroupBy').value = '';
+      document.getElementById('reportTitle').value = '';
+      document.getElementById('reportLayout').value = 'detailed';
+      document.getElementById('reportPaper').value = 'letter';
+      document.getElementById('reportOrientation').value = 'portrait';
+      document.getElementById('reportIncCover').checked = true;
+      document.getElementById('reportIncIndex').checked = true;
       document.getElementById('reportIncDesc').checked = true;
       document.getElementById('reportIncSol').checked = true;
       document.getElementById('reportIncNotas').checked = false;
       document.getElementById('reportIncAttach').checked = false;
+      document.getElementById('reportIncId').checked = false;
+      document.getElementById('reportIncFilters').checked = true;
       updateReportPreview();
       document.getElementById('reportOverlay').classList.add('active');
     }
@@ -1867,143 +2048,386 @@
       const prio = document.getElementById('reportPriority').value;
       const status = document.getElementById('reportStatus').value;
       const search = document.getElementById('reportSearch').value.trim().toLowerCase();
+      const attachF = document.getElementById('reportAttachFilter').value;
+      const favF = document.getElementById('reportFavFilter').value;
       const from = document.getElementById('reportDateFrom').value;
       const to = document.getElementById('reportDateTo').value;
 
       if (cat) filtered = filtered.filter(function(a) { return a['Categoría'] === cat; });
       if (prio) filtered = filtered.filter(function(a) { return a['Prioridad'] === prio; });
-      if (status) filtered = filtered.filter(function(a) { return a['Estado'] === status; });
+      if (status === '__pending') {
+        filtered = filtered.filter(function(a) { return a['Estado'] === 'Abierto' || a['Estado'] === 'En progreso'; });
+      } else if (status) {
+        filtered = filtered.filter(function(a) { return a['Estado'] === status; });
+      }
       if (search) {
         filtered = filtered.filter(function(a) {
           return (a['Título'] || '').toLowerCase().indexOf(search) !== -1 ||
             (a['Descripción'] || '').toLowerCase().indexOf(search) !== -1 ||
-            (a['Solución'] || '').toLowerCase().indexOf(search) !== -1;
+            (a['Solución'] || '').toLowerCase().indexOf(search) !== -1 ||
+            (a['Notas'] || '').toLowerCase().indexOf(search) !== -1;
         });
       }
+      if (attachF === 'with') filtered = filtered.filter(function(a) { return reportGetAtts(a).length > 0; });
+      else if (attachF === 'without') filtered = filtered.filter(function(a) { return reportGetAtts(a).length === 0; });
+      if (favF === 'fav') {
+        const bms = getBookmarks();
+        filtered = filtered.filter(function(a) { return bms.indexOf(String(a['ID'])) !== -1; });
+      }
       if (from) {
-        const d = new Date(from);
+        const d = new Date(from + 'T00:00:00');
         filtered = filtered.filter(function(a) {
           return a['Actualizado'] && new Date(a['Actualizado']) >= d;
         });
       }
       if (to) {
-        const d = new Date(to); d.setHours(23, 59, 59, 999);
+        const d = new Date(to + 'T23:59:59.999');
         filtered = filtered.filter(function(a) {
           return a['Actualizado'] && new Date(a['Actualizado']) <= d;
         });
       }
       return filtered;
     }
-    function updateReportPreview() {
-      const count = getReportFilteredArticles().length;
-      const preview = document.getElementById('reportPreview');
-      if (preview) {
-        preview.innerHTML = '📄 <strong>' + count + '</strong> artículo' + (count !== 1 ? 's' : '') + ' coincide' + (count !== 1 ? 'n' : '') + ' con los filtros seleccionados';
+    function reportSortArticles(list, mode) {
+      const s = list.slice();
+      const t = function(a) { return new Date(a['Actualizado'] || 0).getTime() || 0; };
+      switch (mode) {
+        case 'oldest': return s.sort(function(a, b) { return t(a) - t(b); });
+        case 'priority': return s.sort(function(a, b) {
+          const pa = REPORT_PRIO_ORDER[a['Prioridad']], pb = REPORT_PRIO_ORDER[b['Prioridad']];
+          return (pa === undefined ? 1 : pa) - (pb === undefined ? 1 : pb) || t(b) - t(a);
+        });
+        case 'title': return s.sort(function(a, b) { return (a['Título'] || '').localeCompare(b['Título'] || '', 'es'); });
+        case 'category': return s.sort(function(a, b) {
+          return (a['Categoría'] || '').localeCompare(b['Categoría'] || '', 'es') || t(b) - t(a);
+        });
+        case 'status': return s.sort(function(a, b) {
+          const sa = REPORT_STATUS_ORDER[a['Estado']], sb = REPORT_STATUS_ORDER[b['Estado']];
+          return (sa === undefined ? 9 : sa) - (sb === undefined ? 9 : sb) || t(b) - t(a);
+        });
+        default: return s.sort(function(a, b) { return t(b) - t(a); });
       }
     }
+    function reportCountBy(list, key, fallback) {
+      const out = {};
+      list.forEach(function(a) {
+        const k = a[key] || fallback;
+        out[k] = (out[k] || 0) + 1;
+      });
+      return out;
+    }
+    function updateReportPreview() {
+      const list = getReportFilteredArticles();
+      const count = list.length;
+      const preview = document.getElementById('reportPreview');
+      if (!preview) return;
+      let html = '📄 <strong>' + count + '</strong> artículo' + (count !== 1 ? 's' : '') + ' coincide' + (count !== 1 ? 'n' : '') + ' con los filtros seleccionados';
+      if (count > 0) {
+        const res = list.filter(function(a) { return a['Estado'] === 'Resuelto'; }).length;
+        const alta = list.filter(function(a) { return a['Prioridad'] === 'Alta'; }).length;
+        html += '<br><span style="font-size:12px;">✅ ' + res + ' resueltos · ⏳ ' + (count - res) + ' pendientes · 🔴 ' + alta + ' alta prioridad</span>';
+      }
+      preview.innerHTML = html;
+    }
+
+    function reportBarsHtml(title, counts, total, colorFn) {
+      const keys = Object.keys(counts).sort(function(a, b) { return counts[b] - counts[a]; });
+      if (!keys.length) return '';
+      return '<div class="chart-box"><h5>' + escapeHtml(title) + '</h5>' +
+        keys.map(function(k) {
+          const pct = total ? Math.round(counts[k] * 100 / total) : 0;
+          return '<div class="bar-row">' +
+            '<span class="bar-label">' + escapeHtml(k) + '</span>' +
+            '<span class="bar-track"><span class="bar-fill" style="width:' + Math.max(pct, 2) + '%;background:' + colorFn(k) + ';"></span></span>' +
+            '<span class="bar-val">' + counts[k] + ' (' + pct + '%)</span>' +
+            '</div>';
+        }).join('') + '</div>';
+    }
+
     function generateReportPDF() {
-      const filtered = getReportFilteredArticles();
+      const o = {
+        sort: document.getElementById('reportSort').value,
+        group: document.getElementById('reportGroupBy').value,
+        title: document.getElementById('reportTitle').value.trim() || 'Reporte Knowledge Base',
+        author: document.getElementById('reportAuthor').value.trim(),
+        layout: document.getElementById('reportLayout').value,
+        paper: document.getElementById('reportPaper').value,
+        orient: document.getElementById('reportOrientation').value,
+        cover: document.getElementById('reportIncCover').checked,
+        index: document.getElementById('reportIncIndex').checked,
+        desc: document.getElementById('reportIncDesc').checked,
+        sol: document.getElementById('reportIncSol').checked,
+        notas: document.getElementById('reportIncNotas').checked,
+        attach: document.getElementById('reportIncAttach').checked,
+        showId: document.getElementById('reportIncId').checked,
+        showFilters: document.getElementById('reportIncFilters').checked
+      };
+
+      let filtered = getReportFilteredArticles();
       if (filtered.length === 0) {
         showToast('⚠️ No hay artículos que coincidan con los filtros');
         return;
       }
+      filtered = reportSortArticles(filtered, o.sort);
 
-      const incDesc = document.getElementById('reportIncDesc').checked;
-      const incSol = document.getElementById('reportIncSol').checked;
-      const incNotas = document.getElementById('reportIncNotas').checked;
-      const incAttach = document.getElementById('reportIncAttach').checked;
+      // ----- Agrupación -----
+      const groupKeyMap = { category: 'Categoría', priority: 'Prioridad', status: 'Estado' };
+      let groups;
+      if (o.group) {
+        const key = groupKeyMap[o.group];
+        const map = {};
+        filtered.forEach(function(a) {
+          const k = a[key] || (o.group === 'category' ? 'General' : (o.group === 'priority' ? 'Media' : 'Resuelto'));
+          (map[k] = map[k] || []).push(a);
+        });
+        const names = Object.keys(map).sort(function(x, y) {
+          if (o.group === 'priority') return (REPORT_PRIO_ORDER[x] === undefined ? 9 : REPORT_PRIO_ORDER[x]) - (REPORT_PRIO_ORDER[y] === undefined ? 9 : REPORT_PRIO_ORDER[y]);
+          if (o.group === 'status') return (REPORT_STATUS_ORDER[x] === undefined ? 9 : REPORT_STATUS_ORDER[x]) - (REPORT_STATUS_ORDER[y] === undefined ? 9 : REPORT_STATUS_ORDER[y]);
+          return x.localeCompare(y, 'es');
+        });
+        groups = names.map(function(n) { return { name: n, items: map[n] }; });
+      } else {
+        groups = [{ name: null, items: filtered }];
+      }
+      // Numeración continua según el orden final
+      const ordered = [];
+      groups.forEach(function(g) { g.items.forEach(function(a) { ordered.push(a); }); });
+      const numOf = new Map();
+      ordered.forEach(function(a, i) { numOf.set(a, i + 1); });
 
-      const cat = document.getElementById('reportCategory').value || 'Todas';
-      const prio = document.getElementById('reportPriority').value || 'Todas';
-      const status = document.getElementById('reportStatus').value || 'Todos';
-      const from = document.getElementById('reportDateFrom').value;
-      const to = document.getElementById('reportDateTo').value;
-      const search = document.getElementById('reportSearch').value.trim();
+      // ----- Filtros aplicados -----
+      const fCat = document.getElementById('reportCategory').value;
+      const fPrio = document.getElementById('reportPriority').value;
+      const fStatus = document.getElementById('reportStatus').value;
+      const fSearch = document.getElementById('reportSearch').value.trim();
+      const fAttach = document.getElementById('reportAttachFilter').value;
+      const fFav = document.getElementById('reportFavFilter').value;
+      const fFrom = document.getElementById('reportDateFrom').value;
+      const fTo = document.getElementById('reportDateTo').value;
+      const sortLabels = { recent: 'Más recientes primero', oldest: 'Más antiguos primero', priority: 'Prioridad (Alta → Baja)', title: 'Título (A-Z)', category: 'Categoría (A-Z)', status: 'Estado' };
+      const groupLabels = { '': 'Sin agrupar', category: 'Categoría', priority: 'Prioridad', status: 'Estado' };
+      const filtersList = [
+        ['Categoría', fCat || 'Todas'],
+        ['Prioridad', fPrio || 'Todas'],
+        ['Estado', fStatus === '__pending' ? 'Pendientes (Abierto + En progreso)' : (fStatus || 'Todos')],
+        ['Adjuntos', fAttach === 'with' ? 'Solo con adjuntos' : (fAttach === 'without' ? 'Solo sin adjuntos' : 'Todos')],
+        ['Favoritos', fFav === 'fav' ? 'Solo favoritos' : 'Todos'],
+        ['Periodo (Actualizado)', (fFrom || fTo) ? ((fFrom || 'inicio') + ' → ' + (fTo || 'hoy')) : 'Sin límite'],
+        ['Búsqueda', fSearch ? '"' + fSearch + '"' : '—'],
+        ['Orden', sortLabels[o.sort] || ''],
+        ['Agrupación', groupLabels[o.group] || '']
+      ];
 
-      let filtersList = [];
-      filtersList.push('Categoría: ' + cat);
-      filtersList.push('Prioridad: ' + prio);
-      filtersList.push('Estado: ' + status);
-      if (from) filtersList.push('Desde: ' + from);
-      if (to) filtersList.push('Hasta: ' + to);
-      if (search) filtersList.push('Búsqueda: "' + search + '"');
+      // ----- Estadísticas -----
+      const total = filtered.length;
+      const nRes = filtered.filter(function(a) { return a['Estado'] === 'Resuelto'; }).length;
+      const nOpen = filtered.filter(function(a) { return a['Estado'] === 'Abierto'; }).length;
+      const nProg = filtered.filter(function(a) { return a['Estado'] === 'En progreso'; }).length;
+      const nHigh = filtered.filter(function(a) { return a['Prioridad'] === 'Alta'; }).length;
+      const nAtt = filtered.filter(function(a) { return reportGetAtts(a).length > 0; }).length;
+      const pctRes = total ? Math.round(nRes * 100 / total) : 0;
+      const dates = filtered.map(function(a) { return new Date(a['Actualizado'] || 0).getTime(); }).filter(function(t) { return t > 0; });
+      const rangeTxt = dates.length ? reportFmtDate(Math.min.apply(null, dates)) + ' — ' + reportFmtDate(Math.max.apply(null, dates)) : '—';
 
-      const articlesHtml = filtered.map(function(a, i) {
-        let html = '<div class="article-print">';
-        html += '<h3>' + (i + 1) + '. ' + escapeHtml(a['Título']) + '</h3>';
-        html += '<div class="print-meta">';
-        html += '<span>' + escapeHtml(a['Categoría'] || 'General') + '</span>';
-        html += '<span>Prioridad: ' + (a['Prioridad'] || 'Media') + '</span>';
-        html += '<span>Estado: ' + (a['Estado'] || 'Resuelto') + '</span>';
-        if (a['Actualizado']) html += '<span>Actualizado: ' + new Date(a['Actualizado']).toLocaleDateString('es-MX') + '</span>';
-        html += '</div>';
+      const prioColor = function(k) { return k === 'Alta' ? '#e53e3e' : (k === 'Media' ? '#dd6b20' : '#38a169'); };
+      const statusColor = function(k) { return k === 'Resuelto' ? '#38a169' : (k === 'En progreso' ? '#0078d4' : '#dd6b20'); };
+      const catColor = function() { return '#0078d4'; };
 
-        if (incDesc) {
-          html += '<h4>Descripción del problema</h4>';
-          html += '<p>' + escapeHtml(a['Descripción'] || '—') + '</p>';
-        }
-        if (incSol) {
-          html += '<h4>Solución / Procedimiento</h4>';
-          html += '<p>' + escapeHtml(a['Solución'] || '—') + '</p>';
-        }
-        if (incNotas && a['Notas']) {
-          html += '<h4>Notas adicionales</h4>';
-          html += '<p>' + escapeHtml(a['Notas']) + '</p>';
-        }
-        if (incAttach) {
-          try {
-            const atts = typeof a['Adjuntos'] === 'string' ? JSON.parse(a['Adjuntos']) : (a['Adjuntos'] || []);
-            if (atts && atts.length > 0) {
-              html += '<h4>Adjuntos</h4><ul>';
-              atts.forEach(function(f) {
-                html += '<li><a href="' + f.url + '">' + escapeHtml(f.name) + '</a> - ' + escapeHtml(f.url) + '</li>';
-              });
-              html += '</ul>';
+      const now = new Date();
+      const nowTxt = now.toLocaleString('es-MX');
+
+      // ----- Portada / resumen ejecutivo -----
+      let coverHtml = '<div class="header-report">' +
+        '<div class="brand">KNOWLEDGE BASE · DERMAVAN</div>' +
+        '<h1>' + escapeHtml(o.title) + '</h1>' +
+        '<div class="subtitle">Generado el ' + escapeHtml(nowTxt) +
+        (o.author ? ' · Elaborado por <strong>' + escapeHtml(o.author) + '</strong>' : '') +
+        ' · ' + total + ' artículo' + (total !== 1 ? 's' : '') + '</div>' +
+        '</div>';
+
+      if (o.showFilters) {
+        coverHtml += '<div class="filters-box"><strong>Filtros aplicados</strong><div class="filters-grid">' +
+          filtersList.map(function(f) {
+            return '<div><span class="fl">' + escapeHtml(f[0]) + ':</span> ' + escapeHtml(f[1]) + '</div>';
+          }).join('') + '</div></div>';
+      }
+
+      if (o.cover) {
+        coverHtml += '<h2 class="sec">Resumen ejecutivo</h2>' +
+          '<div class="kpis">' +
+          '<div class="kpi"><b>' + total + '</b><span>Total</span></div>' +
+          '<div class="kpi ok"><b>' + nRes + '</b><span>Resueltos (' + pctRes + '%)</span></div>' +
+          '<div class="kpi warn"><b>' + (nOpen + nProg) + '</b><span>Pendientes</span></div>' +
+          '<div class="kpi bad"><b>' + nHigh + '</b><span>Alta prioridad</span></div>' +
+          '<div class="kpi"><b>' + nAtt + '</b><span>Con adjuntos</span></div>' +
+          '</div>' +
+          '<div class="range-line">Periodo de actualización de los artículos: <strong>' + escapeHtml(rangeTxt) + '</strong> · Abiertos: ' + nOpen + ' · En progreso: ' + nProg + '</div>' +
+          '<div class="charts">' +
+          reportBarsHtml('Por categoría', reportCountBy(filtered, 'Categoría', 'General'), total, catColor) +
+          reportBarsHtml('Por prioridad', reportCountBy(filtered, 'Prioridad', 'Media'), total, prioColor) +
+          reportBarsHtml('Por estado', reportCountBy(filtered, 'Estado', 'Resuelto'), total, statusColor) +
+          '</div>';
+      }
+
+      // ----- Tabla (índice / resumen) -----
+      const buildTable = function(withLinks) {
+        let t = '<table class="tbl"><thead><tr><th style="width:28px">#</th>' +
+          (o.showId ? '<th style="width:48px">ID</th>' : '') +
+          '<th>Título</th><th>Categoría</th><th>Prior.</th><th>Estado</th><th>Actualizado</th><th style="width:34px">Adj.</th></tr></thead><tbody>';
+        groups.forEach(function(g) {
+          if (g.name) {
+            t += '<tr class="grp"><td colspan="' + (o.showId ? 8 : 7) + '">' + escapeHtml(g.name) + ' (' + g.items.length + ')</td></tr>';
+          }
+          g.items.forEach(function(a) {
+            const n = numOf.get(a);
+            const title = escapeHtml(a['Título'] || '—');
+            t += '<tr><td>' + n + '</td>' +
+              (o.showId ? '<td>' + escapeHtml(a['ID']) + '</td>' : '') +
+              '<td>' + (withLinks ? '<a href="#art-' + n + '">' + title + '</a>' : title) + '</td>' +
+              '<td>' + escapeHtml(a['Categoría'] || 'General') + '</td>' +
+              '<td><span class="pill p-' + escapeHtml(a['Prioridad'] || 'Media') + '">' + escapeHtml(a['Prioridad'] || 'Media') + '</span></td>' +
+              '<td><span class="pill s-' + escapeHtml((a['Estado'] || 'Resuelto').replace(/\s/g, '')) + '">' + escapeHtml(a['Estado'] || 'Resuelto') + '</span></td>' +
+              '<td>' + reportFmtDate(a['Actualizado']) + '</td>' +
+              '<td style="text-align:center">' + (reportGetAtts(a).length || '—') + '</td></tr>';
+          });
+        });
+        return t + '</tbody></table>';
+      };
+
+      let tableHtml = '';
+      if (o.layout === 'table') {
+        tableHtml = '<h2 class="sec">Listado de artículos</h2>' + buildTable(false);
+      } else if (o.layout === 'both') {
+        tableHtml = '<h2 class="sec">Resumen de artículos</h2>' + buildTable(true);
+      } else if (o.index) {
+        tableHtml = '<h2 class="sec">Índice de artículos</h2>' + buildTable(true);
+      }
+
+      // ----- Detalle -----
+      let detailHtml = '';
+      if (o.layout !== 'table') {
+        detailHtml = '<h2 class="sec pb">Detalle de artículos</h2>';
+        groups.forEach(function(g) {
+          if (g.name) {
+            detailHtml += '<h2 class="group-title">' + escapeHtml(g.name) + ' <small>(' + g.items.length + ')</small></h2>';
+          }
+          g.items.forEach(function(a) {
+            const n = numOf.get(a);
+            let html = '<div class="article-print" id="art-' + n + '">';
+            html += '<h3>' + n + '. ' + escapeHtml(a['Título'] || '—') + '</h3>';
+            html += '<div class="print-meta">';
+            html += '<span>' + escapeHtml(a['Categoría'] || 'General') + '</span>';
+            html += '<span class="pill p-' + escapeHtml(a['Prioridad'] || 'Media') + '">Prioridad: ' + escapeHtml(a['Prioridad'] || 'Media') + '</span>';
+            html += '<span class="pill s-' + escapeHtml((a['Estado'] || 'Resuelto').replace(/\s/g, '')) + '">' + escapeHtml(a['Estado'] || 'Resuelto') + '</span>';
+            if (a['Actualizado']) html += '<span>Actualizado: ' + reportFmtDate(a['Actualizado']) + '</span>';
+            if (o.showId) html += '<span>ID: ' + escapeHtml(a['ID']) + '</span>';
+            html += '</div>';
+
+            if (o.desc) {
+              html += '<h4>Descripción del problema</h4>';
+              html += '<p>' + escapeHtml(a['Descripción'] || '—') + '</p>';
             }
-          } catch(e) {}
-        }
-        html += '</div>';
-        return html;
-      }).join('');
+            if (o.sol) {
+              html += '<h4>Solución / Procedimiento</h4>';
+              html += '<p>' + escapeHtml(a['Solución'] || '—') + '</p>';
+            }
+            if (o.notas && a['Notas']) {
+              html += '<h4>Notas adicionales</h4>';
+              html += '<p>' + escapeHtml(a['Notas']) + '</p>';
+            }
+            if (o.attach) {
+              const atts = reportGetAtts(a);
+              if (atts.length > 0) {
+                html += '<h4>Adjuntos (' + atts.length + ')</h4><ul>';
+                atts.forEach(function(f) {
+                  html += '<li><a href="' + escapeHtml(reportSafeUrl(f.url)) + '">' + escapeHtml(f.name || 'Adjunto') + '</a> — ' + escapeHtml(f.url) + '</li>';
+                });
+                html += '</ul>';
+              }
+            }
+            html += '</div>';
+            detailHtml += html;
+          });
+        });
+      }
+
+      const paperSize = (o.paper === 'A4' ? 'A4' : (o.paper === 'legal' ? 'legal' : 'letter')) + ' ' + (o.orient === 'landscape' ? 'landscape' : 'portrait');
+      const safeTitle = escapeHtml(o.title);
+
+      const css =
+        '@page { size: ' + paperSize + '; margin: 16mm 14mm 18mm 14mm;' +
+        ' @bottom-left { content: "Knowledge Base DERMAVAN · ' + safeTitle.replace(/"/g, '') + '"; font-size: 8pt; color: #a0aec0; font-family: Arial, sans-serif; }' +
+        ' @bottom-right { content: "Página " counter(page) " de " counter(pages); font-size: 8pt; color: #a0aec0; font-family: Arial, sans-serif; } }' +
+        '*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+        'body{font-family:Arial,Helvetica,sans-serif;color:#2d3748;margin:0;font-size:11.5px;line-height:1.45;}' +
+        'a{color:#0078d4;text-decoration:none;}' +
+        '.header-report{border-bottom:3px solid #0078d4;padding-bottom:14px;margin-bottom:16px;}' +
+        '.header-report .brand{font-size:10px;letter-spacing:2px;color:#718096;font-weight:700;margin-bottom:6px;}' +
+        '.header-report h1{font-size:26px;color:#1e3a5f;margin:0 0 6px;}' +
+        '.header-report .subtitle{font-size:11px;color:#718096;}' +
+        '.filters-box{background:#f0f2f5;border-left:4px solid #0078d4;padding:10px 14px;border-radius:6px;margin-bottom:18px;font-size:10.5px;}' +
+        '.filters-box strong{color:#1e3a5f;font-size:11px;}' +
+        '.filters-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px 14px;margin-top:6px;}' +
+        '.filters-grid .fl{color:#718096;font-weight:700;}' +
+        'h2.sec{font-size:14px;color:#1e3a5f;border-bottom:1px solid #e2e8f0;padding-bottom:5px;margin:20px 0 10px;text-transform:uppercase;letter-spacing:.8px;}' +
+        'h2.sec.pb{break-before:page;page-break-before:always;}' +
+        'h2.group-title{font-size:15px;background:#1e3a5f;color:#fff;padding:7px 12px;border-radius:6px;margin:18px 0 10px;break-after:avoid;page-break-after:avoid;}' +
+        'h2.group-title small{font-weight:400;opacity:.8;}' +
+        '.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:8px;}' +
+        '.kpi{border:1px solid #e2e8f0;border-top:3px solid #0078d4;border-radius:6px;padding:10px 8px;text-align:center;background:#fff;}' +
+        '.kpi b{display:block;font-size:22px;color:#1e3a5f;line-height:1.1;}' +
+        '.kpi span{font-size:9.5px;color:#718096;text-transform:uppercase;letter-spacing:.4px;}' +
+        '.kpi.ok{border-top-color:#38a169;}.kpi.warn{border-top-color:#dd6b20;}.kpi.bad{border-top-color:#e53e3e;}' +
+        '.range-line{font-size:10px;color:#718096;margin-bottom:12px;}' +
+        '.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;}' +
+        '.chart-box{border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;break-inside:avoid;page-break-inside:avoid;}' +
+        '.chart-box h5{margin:0 0 8px;font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:.8px;}' +
+        '.bar-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:10px;}' +
+        '.bar-label{width:78px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}' +
+        '.bar-track{flex:1;height:9px;background:#edf2f7;border-radius:5px;overflow:hidden;display:block;}' +
+        '.bar-fill{display:block;height:100%;border-radius:5px;}' +
+        '.bar-val{width:56px;text-align:right;color:#718096;flex-shrink:0;}' +
+        'table.tbl{width:100%;border-collapse:collapse;font-size:10.5px;}' +
+        'table.tbl thead{display:table-header-group;}' +
+        'table.tbl th{background:#1e3a5f;color:#fff;text-align:left;padding:6px 8px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;}' +
+        'table.tbl td{padding:5px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top;}' +
+        'table.tbl tr{break-inside:avoid;page-break-inside:avoid;}' +
+        'table.tbl tbody tr:nth-child(even) td{background:#f8fafc;}' +
+        'table.tbl tr.grp td{background:#e6f2fc !important;color:#1e3a5f;font-weight:700;}' +
+        '.pill{display:inline-block;font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;background:#e6f2fc;color:#0078d4;}' +
+        '.pill.p-Alta{background:#ffe5e5;color:#e53e3e;}.pill.p-Media{background:#fff4e5;color:#dd6b20;}.pill.p-Baja{background:#e6f9ec;color:#38a169;}' +
+        '.pill.s-Resuelto{background:#e6f9ec;color:#38a169;}.pill.s-Abierto{background:#fff4e5;color:#dd6b20;}.pill.s-Enprogreso{background:#e6f2fc;color:#0078d4;}' +
+        '.article-print{break-inside:avoid;page-break-inside:avoid;border:1px solid #e2e8f0;border-left:4px solid #0078d4;border-radius:8px;padding:12px 16px;margin-bottom:12px;}' +
+        '.article-print h3{font-size:14px;color:#1e3a5f;margin:0 0 8px;}' +
+        '.article-print .print-meta{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;}' +
+        '.article-print .print-meta span{display:inline-block;font-size:9.5px;padding:2px 8px;background:#e6f2fc;color:#0078d4;border-radius:10px;margin:0 5px 3px 0;font-weight:700;}' +
+        '.article-print .print-meta span.pill.p-Alta{background:#ffe5e5;color:#e53e3e;}' +
+        '.article-print .print-meta span.pill.p-Media{background:#fff4e5;color:#dd6b20;}' +
+        '.article-print .print-meta span.pill.p-Baja,.article-print .print-meta span.pill.s-Resuelto{background:#e6f9ec;color:#38a169;}' +
+        '.article-print .print-meta span.pill.s-Abierto{background:#fff4e5;color:#dd6b20;}' +
+        '.article-print h4{font-size:9.5px;color:#718096;text-transform:uppercase;letter-spacing:1px;margin:10px 0 3px;}' +
+        '.article-print p{font-size:11.5px;line-height:1.5;white-space:pre-wrap;margin:0;}' +
+        '.article-print ul{margin:3px 0;padding-left:18px;font-size:10.5px;}' +
+        '.article-print li{margin:2px 0;}' +
+        '.article-print a{word-break:break-all;}' +
+        '.footer-report{margin-top:26px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9.5px;color:#a0aec0;text-align:center;}';
 
       const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        showToast('⚠️ Permite las ventanas emergentes para generar el PDF');
+        return;
+      }
       printWindow.document.write(
-        '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte Knowledge Base - ' + new Date().toLocaleDateString('es-MX') + '</title>' +
-        '<style>' +
-        '@page { margin: 15mm; }' +
-        'body{font-family:Arial,sans-serif;color:#2d3748;max-width:100%;margin:0;font-size:12px;}' +
-        '.header-report{border-bottom:3px solid #0078d4;padding-bottom:16px;margin-bottom:20px;}' +
-        '.header-report h1{font-size:22px;color:#0078d4;margin-bottom:4px;}' +
-        '.header-report .subtitle{font-size:12px;color:#718096;}' +
-        '.filters-box{background:#f0f2f5;padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:11px;}' +
-        '.filters-box strong{color:#2d3748;}' +
-        '.filters-box ul{margin:6px 0 0 0;padding-left:20px;}' +
-        '.filters-box li{margin:2px 0;color:#4a5568;}' +
-        '.article-print{page-break-inside:avoid;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;margin-bottom:14px;}' +
-        '.article-print h3{font-size:14px;color:#1e3a5f;margin-bottom:8px;}' +
-        '.article-print .print-meta{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;}' +
-        '.article-print .print-meta span{display:inline-block;font-size:10px;padding:2px 8px;background:#e6f2fc;color:#0078d4;border-radius:4px;margin-right:6px;font-weight:600;margin-bottom:4px;}' +
-        '.article-print h4{font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px;}' +
-        '.article-print p{font-size:12px;line-height:1.5;white-space:pre-wrap;margin:0;}' +
-        '.article-print ul{margin:4px 0;padding-left:20px;font-size:11px;}' +
-        '.article-print li{margin:2px 0;}' +
-        '.article-print a{color:#0078d4;word-break:break-all;}' +
-        '.footer-report{margin-top:30px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:10px;color:#a0aec0;text-align:center;}' +
-        '</style></head><body>' +
-        '<div class="header-report">' +
-        '<h1>📊 Reporte Knowledge Base</h1>' +
-        '<div class="subtitle">Generado el ' + new Date().toLocaleString('es-MX') + ' · ' + filtered.length + ' artículo' + (filtered.length !== 1 ? 's' : '') + '</div>' +
-        '</div>' +
-        '<div class="filters-box">' +
-        '<strong>Filtros aplicados:</strong>' +
-        '<ul>' + filtersList.map(function(f) { return '<li>' + escapeHtml(f) + '</li>'; }).join('') + '</ul>' +
-        '</div>' +
-        articlesHtml +
-        '<div class="footer-report">Knowledge Base DERMAVAN · Reporte generado automáticamente</div>' +
+        '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>' + safeTitle + ' - ' + now.toLocaleDateString('es-MX') + '</title>' +
+        '<style>' + css + '</style></head><body>' +
+        coverHtml +
+        tableHtml +
+        detailHtml +
+        '<div class="footer-report">Knowledge Base DERMAVAN · Reporte generado automáticamente el ' + escapeHtml(nowTxt) + '</div>' +
         '</body></html>'
       );
       printWindow.document.close();
-      setTimeout(function() { printWindow.print(); }, 500);
+      setTimeout(function() { printWindow.print(); }, 600);
     }
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
