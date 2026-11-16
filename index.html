@@ -72,7 +72,24 @@ mark{background:#fde68a;color:#000;border-radius:2px}
 .code button{position:absolute;top:6px;right:6px;font-size:11px;border:0;border-radius:6px;padding:3px 8px;background:#2d3f5c;color:#fff}
 .att{display:block;padding:10px;background:var(--bg);border-radius:8px;margin-bottom:6px;color:var(--pri);text-decoration:none;word-break:break-all}
 .att img{max-width:100%;border-radius:6px;display:block;margin-top:6px}
-.fab{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;font-size:30px;box-shadow:0 4px 16px rgba(243,156,18,.5);z-index:60}
+.fab[hidden]{display:none}.fab{display:flex;align-items:center;justify-content:center;line-height:1;position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;font-size:30px;box-shadow:0 4px 16px rgba(243,156,18,.5);z-index:60}
+.bar{flex-wrap:wrap}.bar h1{min-width:150px}
+.ci{flex:none;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.ch{display:flex;gap:10px;align-items:flex-start}
+.cat{border-top:3px solid var(--c,var(--pri))}.cat.on{background:var(--c,var(--pri));border-color:var(--c,var(--pri))}
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-bottom:16px}.dash.off{display:none}
+.box{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px}
+.box h5{font-size:12px;color:var(--mut);margin-bottom:8px}
+.br{display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:5px}
+.br i{width:84px;flex:none;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.br u{flex:1;height:9px;background:var(--bd);border-radius:5px;overflow:hidden;display:block}
+.br s{display:block;height:100%;border-radius:5px}
+.br em{width:34px;text-align:right;font-style:normal;color:var(--mut)}
+.pl{display:block;width:100%;text-align:left;background:var(--bg);border:0;border-radius:8px;padding:7px 9px;margin-bottom:5px;font-size:13px}
+.rm{max-width:760px}.rs{font-size:12px;font-weight:700;color:var(--pri);margin:16px 0 8px;border-bottom:1px solid var(--bd);padding-bottom:4px}
+.ck{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;background:var(--bg);padding:10px;border-radius:8px}.ck label{display:flex;gap:8px;align-items:center;font-size:14px}
+.qk{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+#rPrev{background:var(--bg);border-radius:8px;padding:10px;font-size:13px;text-align:center;margin:14px 0}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:100}
 .ov.on{display:flex}
 .modal{background:var(--card);width:100%;max-width:640px;max-height:94vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:20px}
@@ -94,7 +111,7 @@ mark{background:#fde68a;color:#000;border-radius:2px}
 <header class="top">
   <div class="bar">
     <h1>Knowledge Base <small>DERMAVAN</small></h1>
-    <button class="ib" id="bFav" title="Solo favoritos">⭐ Favoritos<span class="n" id="favN" hidden>0</span></button>
+    <button class="ib" id="bNew">＋ Nuevo</button><button class="ib" id="bDash">📊 Dashboard</button><button class="ib" id="bRep">📄 Reportes</button><button class="ib" id="bFav" title="Solo favoritos">⭐ Favoritos<span class="n" id="favN" hidden>0</span></button>
     <button class="ib" id="bSync" title="Sincronizar"><span id="dot">🟢</span> Sync</button>
     <button class="ib" id="bCsv" title="Exportar a CSV">⬇ CSV</button>
     <button class="ib" id="bTheme" title="Cambiar tema">🌓</button>
@@ -105,6 +122,7 @@ mark{background:#fde68a;color:#000;border-radius:2px}
 <main id="list" class="wrap">
   <div id="banner"></div>
   <div class="stats" id="stats"></div>
+  <div class="dash" id="dash"></div>
   <div class="cats" id="cats"></div>
   <div class="tools">
     <select id="sPri" aria-label="Prioridad"><option value="">Toda prioridad</option><option>Alta</option><option>Media</option><option>Baja</option></select>
@@ -138,6 +156,27 @@ mark{background:#fde68a;color:#000;border-radius:2px}
     <button type="button" class="btn" style="width:100%;margin-top:8px" id="cancel">Cancelar</button>
   </form>
 </div>
+<div class="ov" id="rov"><div class="modal rm">
+<h2>📄 Generar reporte PDF</h2>
+<div class="rs">1 · Filtros</div>
+<div class="row"><div class="fg"><label>Categoría</label><select id="rCat"></select></div><div class="fg"><label>Prioridad</label><select id="rPri"><option value="">Todas</option><option>Alta</option><option>Media</option><option>Baja</option></select></div></div>
+<div class="row"><div class="fg"><label>Estado</label><select id="rEst"><option value="">Todos</option><option>Abierto</option><option>En progreso</option><option>Resuelto</option><option value="pend">Pendientes (Abierto + En progreso)</option></select></div><div class="fg"><label>Texto</label><input id="rTxt" placeholder="Título, descripción, solución, notas…"></div></div>
+<div class="row"><div class="fg"><label>Adjuntos</label><select id="rAtt"><option value="">Todos</option><option value="with">Solo con adjuntos</option><option value="without">Solo sin adjuntos</option></select></div><div class="fg"><label>Favoritos</label><select id="rFav"><option value="">Todos</option><option value="1">Solo favoritos</option></select></div></div>
+<div class="row"><div class="fg"><label>Actualizado desde</label><input type="date" id="rFrom"></div><div class="fg"><label>Actualizado hasta</label><input type="date" id="rTo"></div></div>
+<div class="qk"><button type="button" class="chip" data-p="today">Hoy</button><button type="button" class="chip" data-p="7">7 días</button><button type="button" class="chip" data-p="30">30 días</button><button type="button" class="chip" data-p="month">Este mes</button><button type="button" class="chip" data-p="year">Este año</button><button type="button" class="chip" data-p="">Sin límite</button><button type="button" class="chip" id="rReset">↺ Limpiar filtros</button></div>
+<div class="rs">2 · Orden y agrupación</div>
+<div class="row"><div class="fg"><label>Ordenar por</label><select id="rSort"><option value="recent">Más recientes</option><option value="oldest">Más antiguos</option><option value="priority">Prioridad (Alta → Baja)</option><option value="title">Título A-Z</option><option value="category">Categoría A-Z</option><option value="status">Estado</option></select></div><div class="fg"><label>Agrupar por</label><select id="rGrp"><option value="">Sin agrupar</option><option value="category">Categoría</option><option value="priority">Prioridad</option><option value="status">Estado</option></select></div></div>
+<div class="rs">3 · Formato</div>
+<div class="row"><div class="fg"><label>Título del reporte</label><input id="rTit" maxlength="120" placeholder="Reporte Knowledge Base"></div><div class="fg"><label>Elaborado por</label><input id="rAut" maxlength="80" placeholder="Opcional"></div></div>
+<div class="row"><div class="fg"><label>Diseño</label><select id="rLay"><option value="detailed">Detallado</option><option value="table">Tabla resumen</option><option value="both">Tabla + detalle</option></select></div><div class="fg"><label>Hoja</label><select id="rPap"><option value="letter">Carta</option><option value="A4">A4</option><option value="legal">Oficio</option></select></div></div>
+<div class="fg"><label>Orientación</label><select id="rOri"><option value="portrait">Vertical</option><option value="landscape">Horizontal</option></select></div>
+<div class="rs">4 · Contenido</div>
+<div class="ck"><label><input type="checkbox" id="rcCov" checked>Resumen y gráficas</label><label><input type="checkbox" id="rcIdx" checked>Índice</label><label><input type="checkbox" id="rcDes" checked>Descripción</label><label><input type="checkbox" id="rcSol" checked>Solución</label><label><input type="checkbox" id="rcNot">Notas</label><label><input type="checkbox" id="rcAtt">Enlaces de adjuntos</label><label><input type="checkbox" id="rcId">ID del artículo</label><label><input type="checkbox" id="rcFil" checked>Filtros aplicados</label></div>
+<div id="rPrev"></div>
+<button type="button" class="btn p" style="width:100%;padding:13px" id="rGo">Generar PDF</button>
+<button type="button" class="btn" style="width:100%;margin-top:8px" id="rView">Abrir vista previa en pestaña</button>
+<button type="button" class="btn" style="width:100%;margin-top:8px" id="rClose">Cerrar</button>
+</div></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -145,6 +184,7 @@ mark{background:#fde68a;color:#000;border-radius:2px}
 // ===== CONFIG =====
 const API_URL='https://script.google.com/macros/s/AKfycbxqnThd4OIvnLF4JMN0mgpi1aIdToRNYN2DtjvqDqHRYdv6c7ZqPQ6-I2nk6yiCFfWw/exec';
 const CATS=['Cotizador','CRM Harmony','DERMAVANLAB','DIRECCION','Hardware','POWER BI','Proceso','Red','SAP','Software','Otro'];
+const CI={'Cotizador':['#f39c12','🧮'],'CRM Harmony':['#00b5d8','👥'],'DERMAVANLAB':['#e53e3e','🧪'],'DIRECCION':['#38a169','🏛️'],'Hardware':['#805ad5','🖥️'],'POWER BI':['#dd6b20','📊'],'Proceso':['#0078d4','📋'],'Red':['#2f855a','📡'],'SAP':['#1e3a5f','🏢'],'Software':['#c53030','💾'],'Otro':['#718096','📁']};const cc=c=>CI[c]||CI['Otro'];
 const PAGE=24, LS={cache:'kb_articles_cache',bm:'kb_bookmarks',theme:'kb_theme',draft:'kb_draft'};
 const S={arts:[],q:'',cat:'',est:'',pri:'',fav:false,sort:'recent',shown:PAGE,y:0,inApp:false,dirty:false};
 const $=id=>document.getElementById(id);
@@ -172,8 +212,8 @@ function md(t){if(!t)return '—';const blocks=[];
   return t.replace(/\u0000(\d+)\u0000/g,(m,i)=>'<div class="code"><button type="button" data-copy>Copiar</button><pre>'+esc(blocks[i])+'</pre></div>')}
 
 // ===== API (JSONP, token pedido como PIN; ya no va en el código) =====
-function getToken(force){let t=force?null:sessionStorage.getItem('kb_tok');
-  if(!t){t=prompt('PIN / token de acceso');if(t)sessionStorage.setItem('kb_tok',t.trim())}return t&&t.trim()}
+const API_TOKEN='kbgeneral-que-se-hizo-en-2026-para-dermavan';
+function getToken(){return sessionStorage.getItem('kb_tok')||API_TOKEN}
 function dot(s){$('dot').textContent=s==='sync'?'🟠':s==='err'?'🔴':'🟢'}
 function api(action,extra={}){return new Promise((res,rej)=>{
   const tok=getToken();if(!tok)return rej(new Error('Se requiere el PIN'));
@@ -182,7 +222,7 @@ function api(action,extra={}){return new Promise((res,rej)=>{
   dot('sync');const s=document.createElement('script');
   const done=()=>{delete window[cb];s.remove();clearTimeout(to)};
   const to=setTimeout(()=>{done();dot('err');rej(new Error('Tiempo agotado'))},25000);
-  window[cb]=d=>{done();if(d&&d.error){dot('err');if(/token|auth|autoriz/i.test(d.error))sessionStorage.removeItem('kb_tok');rej(new Error(d.error))}else{dot('ok');res(d)}};
+  window[cb]=d=>{done();if(d&&d.error){dot('err');if(/token|auth|autoriz/i.test(d.error)){sessionStorage.removeItem('kb_tok');setTimeout(()=>{const t=prompt('Token inválido. Escribe el token de acceso:');if(t)sessionStorage.setItem('kb_tok',t.trim())},50)}rej(new Error(d.error))}else{dot('ok');res(d)}};
   s.onerror=()=>{done();dot('err');rej(new Error('No se pudo conectar'))};
   s.src=url;document.body.appendChild(s)})}
 
@@ -209,8 +249,8 @@ function render(){
   const st=[['','total','Total',A.length],['Resuelto','est','Resueltos',res],['pend','est','Pendientes',A.length-res],['Alta','pri','Alta prioridad',A.filter(a=>a['Prioridad']==='Alta').length]];
   $('stats').innerHTML=st.map(s=>'<button class="stat'+((s[1]==='est'&&S.est===s[0])||(s[1]==='pri'&&S.pri===s[0])?' on':'')+'" data-st="'+s[1]+'" data-v="'+s[0]+'"><b>'+s[3]+'</b><span>'+s[2]+'</span></button>').join('');
   const cn={};A.forEach(a=>{const c=a['Categoría']||'Otro';cn[c]=(cn[c]||0)+1});
-  $('cats').innerHTML=CATS.map(c=>'<button class="cat'+(S.cat===c?' on':'')+'" data-cat="'+esc(c)+'">'+esc(c)+'<b>'+(cn[c]||0)+'</b></button>').join('');
-  $('sPri').value=S.pri;$('sEst').value=S.est;$('sSort').value=S.sort;
+  $('cats').innerHTML=CATS.map(c=>'<button class="cat'+(S.cat===c?' on':'')+'" style="--c:'+cc(c)[0]+'" data-cat="'+esc(c)+'">'+cc(c)[1]+' '+esc(c)+'<b>'+(cn[c]||0)+'</b></button>').join('');
+  dash();$('sPri').value=S.pri;$('sEst').value=S.est;$('sSort').value=S.sort;
   const ch=[];if(S.cat)ch.push(['cat',S.cat]);if(S.pri)ch.push(['pri','Prioridad '+S.pri]);if(S.est)ch.push(['est',S.est==='pend'?'Pendientes':S.est]);if(S.fav)ch.push(['fav','Favoritos']);if(S.q)ch.push(['q','“'+S.q+'”']);
   $('chips').innerHTML=ch.map(c=>'<button class="chip" data-clear="'+c[0]+'">'+esc(c[1])+' ✕</button>').join('');
   const f=filtered(),bm=bms();$('count').textContent=f.length+' artículo'+(f.length!==1?'s':'');
@@ -218,17 +258,88 @@ function render(){
   $('grid').innerHTML=f.length?f.slice(0,S.shown).map(a=>{const p=a['Prioridad']||'Media',e=a['Estado']||'Resuelto',na=atts(a).length;
     return '<article class="card '+esc(p)+'" data-id="'+esc(a['ID'])+'" tabindex="0" role="button">'+
       '<button class="star'+(bm.has(String(a['ID']))?' on':'')+'" data-fav="'+esc(a['ID'])+'" aria-label="Favorito">★</button>'+
-      '<h3>'+hl(a['Título'])+'</h3><p>'+hl(a['Descripción']||a['Solución']||'Sin descripción')+'</p>'+
-      '<div class="meta"><span class="tag">'+esc(a['Categoría']||'Otro')+'</span><span class="tag '+esc(p)+'">'+esc(p)+'</span><span class="tag '+(e==='Resuelto'?'Resuelto':'')+'">'+esc(e)+'</span>'+(na?'<span>📎 '+na+'</span>':'')+'<span style="margin-left:auto">'+ago(a['Actualizado'])+'</span></div></article>'}).join('')
+      '<div class="ch"><span class="ci" style="background:'+cc(a['Categoría'])[0]+'">'+cc(a['Categoría'])[1]+'</span><h3>'+hl(a['Título'])+'</h3></div><p>'+hl(a['Descripción']||a['Solución']||'Sin descripción')+'</p>'+
+      '<div class="meta"><span class="tag" style="background:'+cc(a['Categoría'])[0]+';color:#fff">'+esc(a['Categoría']||'Otro')+'</span><span class="tag '+esc(p)+'">'+esc(p)+'</span><span class="tag '+(e==='Resuelto'?'Resuelto':'')+'">'+esc(e)+'</span>'+(na?'<span>📎 '+na+'</span>':'')+'<span style="margin-left:auto">'+ago(a['Actualizado'])+'</span></div></article>'}).join('')
     :'<div class="empty"><h3>Sin resultados</h3><p>Prueba con otras palabras o limpia los filtros. Usa + para crear un artículo.</p></div>';
   $('more').hidden=f.length<=S.shown}
+
+// ===== DASHBOARD =====
+const PC={Alta:'#e53e3e',Media:'#dd6b20',Baja:'#38a169'},EC={Resuelto:'#38a169','En progreso':'#0078d4',Abierto:'#dd6b20'},PO={Alta:0,Media:1,Baja:2},EO={Abierto:0,'En progreso':1,Resuelto:2};
+const cnt=(l,k,d)=>l.reduce((o,a)=>{const v=a[k]||d;o[v]=(o[v]||0)+1;return o},{});
+function bars(t,o,cf,ord){const k=ord?Object.keys(o):Object.keys(o).sort((a,b)=>o[b]-o[a]),m=Math.max(1,...k.map(x=>o[x]));
+  return '<div class="box"><h5>'+t+'</h5>'+(k.map(x=>'<div class="br"><i>'+esc(x)+'</i><u><s style="width:'+Math.max(3,o[x]*100/m)+'%;background:'+cf(x)+'"></s></u><em>'+o[x]+'</em></div>').join('')||'<small>Sin datos</small>')+'</div>'}
+function dash(){const A=filtered();$('dash').classList.toggle('off',!!store.get('kb_dashoff',false));
+  const mo={};A.forEach(a=>{const d=new Date(a['Actualizado']);if(!isNaN(d)&&a['Actualizado']){const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');mo[k]=(mo[k]||0)+1}});
+  const mm={};Object.keys(mo).sort().slice(-6).forEach(k=>mm[k]=mo[k]);
+  const pend=A.filter(a=>a['Prioridad']==='Alta'&&(a['Estado']||'Resuelto')!=='Resuelto').slice(0,5);
+  $('dash').innerHTML=bars('Por categoría',cnt(A,'Categoría','Otro'),c=>cc(c)[0])+bars('Por prioridad',cnt(A,'Prioridad','Media'),k=>PC[k]||'#0078d4')+bars('Por estado',cnt(A,'Estado','Resuelto'),k=>EC[k]||'#0078d4')+bars('Actualizaciones por mes',mm,()=>'#0078d4',1)+
+  '<div class="box"><h5>Alta prioridad pendiente</h5>'+(pend.map(a=>'<button class="pl" data-id="'+esc(a['ID'])+'">🔴 '+esc(a['Título'])+'</button>').join('')||'<small>Nada pendiente 🎉</small>')+'</div>'}
+$('dash').addEventListener('click',e=>{const c=e.target.closest('[data-id]');if(c)openDetail(c.dataset.id)});
+$('bDash').onclick=()=>{store.set('kb_dashoff',!store.get('kb_dashoff',false));dash()};
+$('bNew').onclick=()=>openForm();
+
+// ===== REPORTES PDF =====
+const rv=id=>$(id).value,rc=id=>$(id).checked,RF=['rCat','rPri','rEst','rTxt','rAtt','rFav','rFrom','rTo'];
+function repInit(){$('rCat').innerHTML='<option value="">Todas</option>'+CATS.map(c=>'<option>'+esc(c)+'</option>').join('')}
+function repList(){const ws=norm(rv('rTxt')).split(/\s+/).filter(Boolean),bm=bms(),t0=rv('rFrom')?new Date(rv('rFrom')+'T00:00:00'):null,t1=rv('rTo')?new Date(rv('rTo')+'T23:59:59'):null;
+  return S.arts.filter(a=>{const e=a['Estado']||'Resuelto',d=new Date(a['Actualizado']||0),n=atts(a).length,E=rv('rEst'),A=rv('rAtt');
+    return(!rv('rCat')||a['Categoría']===rv('rCat'))&&(!rv('rPri')||a['Prioridad']===rv('rPri'))&&(!E||(E==='pend'?e!=='Resuelto':e===E))&&(!A||(A==='with'?n>0:n===0))&&(!rv('rFav')||bm.has(String(a['ID'])))&&(!t0||d>=t0)&&(!t1||d<=t1)&&ws.every(w=>a._h.includes(w))})}
+function repSort(l,m){const t=a=>new Date(a['Actualizado']||0).getTime()||0,c=(a,b,k)=>(a[k]||'').localeCompare(b[k]||'','es');
+  return l.slice().sort({oldest:(a,b)=>t(a)-t(b),priority:(a,b)=>(PO[a['Prioridad']]??1)-(PO[b['Prioridad']]??1)||t(b)-t(a),title:(a,b)=>c(a,b,'Título'),category:(a,b)=>c(a,b,'Categoría')||t(b)-t(a),status:(a,b)=>(EO[a['Estado']]??9)-(EO[b['Estado']]??9)||t(b)-t(a)}[m]||((a,b)=>t(b)-t(a)))}
+function repPrev(){const l=repList(),r=l.filter(a=>(a['Estado']||'Resuelto')==='Resuelto').length;
+  $('rPrev').innerHTML='📄 <b>'+l.length+'</b> artículo'+(l.length!==1?'s':'')+' · ✅ '+r+' resueltos · ⏳ '+(l.length-r)+' pendientes · 🔴 '+l.filter(a=>a['Prioridad']==='Alta').length+' alta prioridad'}
+function repPreset(p){const d=n=>n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'),now=new Date();let f='';
+  if(p==='today')f=d(now);else if(p==='month')f=d(new Date(now.getFullYear(),now.getMonth(),1));else if(p==='year')f=d(new Date(now.getFullYear(),0,1));else if(p){const x=new Date(now);x.setDate(x.getDate()-+p);f=d(x)}
+  $('rFrom').value=f;$('rTo').value=f?d(now):'';repPrev()}
+function repBuild(){let l=repList();if(!l.length){toast('⚠️ No hay artículos con esos filtros');return null}
+  l=repSort(l,rv('rSort'));const g=rv('rGrp'),gk={category:'Categoría',priority:'Prioridad',status:'Estado'}[g],dv={category:'Otro',priority:'Media',status:'Resuelto'}[g];
+  let gs=[{n:'',i:l}];if(g){const m={};l.forEach(a=>{const k=a[gk]||dv;(m[k]=m[k]||[]).push(a)});
+    gs=Object.keys(m).sort((x,y)=>g==='priority'?(PO[x]??9)-(PO[y]??9):g==='status'?(EO[x]??9)-(EO[y]??9):x.localeCompare(y,'es')).map(n=>({n,i:m[n]}))}
+  const num=new Map([].concat(...gs.map(x=>x.i)).map((a,i)=>[a,i+1])),n=l.length,res=l.filter(a=>(a['Estado']||'Resuelto')==='Resuelto').length,hi=l.filter(a=>a['Prioridad']==='Alta').length,na=l.filter(a=>atts(a).length).length;
+  const dt=v=>{const d=new Date(v);return !v||isNaN(d)?'—':d.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'})},tx=id=>$(id).selectedOptions[0].text;
+  const title=esc(rv('rTit').trim()||'Reporte Knowledge Base'),now=new Date().toLocaleString('es-MX'),lay=rv('rLay');
+  const pill=(k,v)=>'<b class="pill '+k+v.replace(/\s/g,'')+'">'+esc(v)+'</b>';
+  const fl=[['Categoría',rv('rCat')||'Todas'],['Prioridad',rv('rPri')||'Todas'],['Estado',tx('rEst')],['Adjuntos',tx('rAtt')],['Favoritos',tx('rFav')],['Periodo',rv('rFrom')||rv('rTo')?(rv('rFrom')||'inicio')+' → '+(rv('rTo')||'hoy'):'Sin límite'],['Texto',rv('rTxt')||'—'],['Orden',tx('rSort')],['Agrupación',tx('rGrp')]];
+  let h='<div class="hd"><div class="br0">KNOWLEDGE BASE · DERMAVAN</div><h1>'+title+'</h1><div class="sub">Generado el '+esc(now)+(rv('rAut')?' · Elaborado por <b>'+esc(rv('rAut'))+'</b>':'')+' · '+n+' artículo'+(n!==1?'s':'')+'</div></div>';
+  if(rc('rcFil'))h+='<div class="fb"><b>Filtros aplicados</b><div class="fg3">'+fl.map(f=>'<div><span>'+f[0]+':</span> '+esc(f[1])+'</div>').join('')+'</div></div>';
+  if(rc('rcCov'))h+='<h2 class="sc">Resumen ejecutivo</h2><div class="kp"><div class="k"><b>'+n+'</b>Total</div><div class="k ok"><b>'+res+'</b>Resueltos ('+Math.round(res*100/n)+'%)</div><div class="k wr"><b>'+(n-res)+'</b>Pendientes</div><div class="k bd"><b>'+hi+'</b>Alta prioridad</div><div class="k"><b>'+na+'</b>Con adjuntos</div></div><div class="ch3">'+
+    bars('Por categoría',cnt(l,'Categoría','Otro'),c=>cc(c)[0])+bars('Por prioridad',cnt(l,'Prioridad','Media'),k=>PC[k]||'#0078d4')+bars('Por estado',cnt(l,'Estado','Resuelto'),k=>EC[k]||'#0078d4')+'</div>';
+  const tbl=link=>'<table><thead><tr><th>#</th>'+(rc('rcId')?'<th>ID</th>':'')+'<th>Título</th><th>Categoría</th><th>Prior.</th><th>Estado</th><th>Actualizado</th><th>Adj.</th></tr></thead><tbody>'+gs.map(x=>(x.n?'<tr class="g"><td colspan="8">'+esc(x.n)+' ('+x.i.length+')</td></tr>':'')+x.i.map(a=>{const k=num.get(a);
+    return '<tr><td>'+k+'</td>'+(rc('rcId')?'<td>'+esc(a['ID'])+'</td>':'')+'<td>'+(link?'<a href="#a'+k+'">':'')+esc(a['Título'])+(link?'</a>':'')+'</td><td>'+esc(a['Categoría']||'Otro')+'</td><td>'+pill('p',a['Prioridad']||'Media')+'</td><td>'+pill('e',a['Estado']||'Resuelto')+'</td><td>'+dt(a['Actualizado'])+'</td><td>'+(atts(a).length||'—')+'</td></tr>'}).join('')).join('')+'</tbody></table>';
+  if(lay==='table')h+='<h2 class="sc">Listado de artículos</h2>'+tbl(0);else if(lay==='both'||rc('rcIdx'))h+='<h2 class="sc">'+(lay==='both'?'Resumen':'Índice')+' de artículos</h2>'+tbl(1);
+  if(lay!=='table')h+='<h2 class="sc pb">Detalle de artículos</h2>'+gs.map(x=>(x.n?'<h2 class="gt">'+esc(x.n)+' <small>('+x.i.length+')</small></h2>':'')+x.i.map(a=>{const k=num.get(a),at=atts(a);
+    return '<div class="art" id="a'+k+'"><h3>'+k+'. '+esc(a['Título'])+'</h3><div class="pm"><span style="background:'+cc(a['Categoría'])[0]+';color:#fff">'+esc(a['Categoría']||'Otro')+'</span>'+pill('p',a['Prioridad']||'Media')+pill('e',a['Estado']||'Resuelto')+'<span>Actualizado: '+dt(a['Actualizado'])+'</span>'+(rc('rcId')?'<span>ID: '+esc(a['ID'])+'</span>':'')+'</div>'+
+      (rc('rcDes')?'<h4>Descripción del problema</h4><p>'+esc(a['Descripción']||'—')+'</p>':'')+(rc('rcSol')?'<h4>Solución / procedimiento</h4><p>'+esc(a['Solución']||'—')+'</p>':'')+(rc('rcNot')&&a['Notas']?'<h4>Notas adicionales</h4><p>'+esc(a['Notas'])+'</p>':'')+
+      (rc('rcAtt')&&at.length?'<h4>Adjuntos ('+at.length+')</h4><ul>'+at.map(f=>'<li><a href="'+esc(safeUrl(f.url))+'">'+esc(f.name||'Adjunto')+'</a> — '+esc(f.url)+'</li>').join('')+'</ul>':'')+'</div>'}).join('')).join('');
+  const css='@page{size:'+rv('rPap')+' '+rv('rOri')+';margin:16mm 14mm 18mm;@bottom-center{content:"Knowledge Base DERMAVAN · Página "counter(page)" de "counter(pages);font-size:8pt;color:#a0aec0}}'+
+  '*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}body{font:11.5px/1.45 Arial,sans-serif;color:#2d3748;margin:0}a{color:#0078d4;text-decoration:none}'+
+  '.hd{border-bottom:3px solid #0078d4;padding-bottom:12px;margin-bottom:14px}.br0{font-size:10px;letter-spacing:2px;color:#718096;font-weight:700}.hd h1{font-size:26px;color:#1e3a5f;margin:6px 0}.sub{font-size:11px;color:#718096}'+
+  '.fb{background:#f0f2f5;border-left:4px solid #0078d4;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:10.5px}.fg3{display:grid;grid-template-columns:repeat(3,1fr);gap:3px 14px;margin-top:6px}.fg3 span{color:#718096;font-weight:700}'+
+  'h2.sc{font-size:14px;color:#1e3a5f;border-bottom:1px solid #e2e8f0;padding-bottom:5px;margin:20px 0 10px;text-transform:uppercase;letter-spacing:.8px}h2.pb{break-before:page}h2.gt{font-size:15px;background:#1e3a5f;color:#fff;padding:7px 12px;border-radius:6px;margin:16px 0 10px;break-after:avoid}h2.gt small{font-weight:400;opacity:.8}'+
+  '.kp{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.k{border:1px solid #e2e8f0;border-top:3px solid #0078d4;border-radius:6px;padding:9px 6px;text-align:center;font-size:9.5px;color:#718096;text-transform:uppercase}.k b{display:block;font-size:22px;color:#1e3a5f}.k.ok{border-top-color:#38a169}.k.wr{border-top-color:#dd6b20}.k.bd{border-top-color:#e53e3e}'+
+  '.ch3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px;break-inside:avoid}.box h5{font-size:10px;color:#718096;text-transform:uppercase;margin:0 0 6px}'+
+  '.br{display:flex;gap:6px;align-items:center;font-size:10px;margin-bottom:4px}.br i{width:80px;font-style:normal;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.br u{flex:1;height:9px;background:#edf2f7;border-radius:5px;overflow:hidden;display:block}.br s{display:block;height:100%}.br em{width:30px;text-align:right;font-style:normal;color:#718096}'+
+  'table{width:100%;border-collapse:collapse;font-size:10.5px}thead{display:table-header-group}th{background:#1e3a5f;color:#fff;text-align:left;padding:6px 8px;font-size:9.5px;text-transform:uppercase}td{padding:5px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top}tr{break-inside:avoid}tbody tr:nth-child(even) td{background:#f8fafc}tr.g td{background:#e6f2fc!important;color:#1e3a5f;font-weight:700}'+
+  '.pill{display:inline-block;font-size:9px;padding:1px 7px;border-radius:10px;background:#e6f2fc;color:#0078d4}.pAlta{background:#ffe5e5;color:#e53e3e}.pMedia{background:#fff4e5;color:#dd6b20}.pBaja,.eResuelto{background:#e6f9ec;color:#38a169}.eAbierto{background:#fff4e5;color:#dd6b20}'+
+  '.art{break-inside:avoid;border:1px solid #e2e8f0;border-left:4px solid #0078d4;border-radius:8px;padding:12px 16px;margin-bottom:12px}.art h3{font-size:14px;color:#1e3a5f;margin:0 0 8px}.pm{padding-bottom:8px;margin-bottom:4px;border-bottom:1px solid #e2e8f0}.pm span{display:inline-block;font-size:9.5px;padding:2px 8px;background:#e6f2fc;color:#0078d4;border-radius:10px;margin-right:5px;font-weight:700}'+
+  '.art h4{font-size:9.5px;color:#718096;text-transform:uppercase;letter-spacing:1px;margin:10px 0 3px}.art p{white-space:pre-wrap;margin:0}.art ul{margin:3px 0;padding-left:18px;font-size:10.5px}.art a{word-break:break-all}';
+  return '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+title+'</title><style>'+css+'</style></head><body>'+h+'</body></html>'}
+function printHtml(h){const f=document.createElement('iframe');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);
+  f.contentDocument.open();f.contentDocument.write(h);f.contentDocument.close();setTimeout(()=>{f.contentWindow.focus();f.contentWindow.print();setTimeout(()=>f.remove(),60000)},500)}
+$('bRep').onclick=()=>{RF.forEach(k=>$(k).value='');repPrev();$('rov').classList.add('on')};
+$('rClose').onclick=()=>$('rov').classList.remove('on');
+$('rov').addEventListener('click',e=>{if(e.target===$('rov'))$('rov').classList.remove('on');const p=e.target.closest('[data-p]');if(p)repPreset(p.dataset.p);if(e.target.id==='rReset'){RF.forEach(k=>$(k).value='');repPrev()}});
+$('rov').addEventListener('input',repPrev);
+$('rGo').onclick=()=>{const h=repBuild();if(h)printHtml(h)};
+$('rView').onclick=()=>{const h=repBuild();if(h)window.open(URL.createObjectURL(new Blob([h],{type:'text/html'})),'_blank')};
+addEventListener('error',e=>toast('⚠️ '+e.message));
 
 // ===== DETALLE + HASH =====
 function route(){const m=location.hash.match(/^#\/articulo\/(.+)$/),a=m&&S.arts.find(x=>String(x['ID'])===decodeURIComponent(m[1]));
   if(!a){$('detail').style.display='none';$('list').style.display='';$('fab').hidden=false;if(S.y){window.scrollTo(0,S.y);S.y=0}return}
   const bm=bms().has(String(a['ID'])),at=atts(a);
   $('detail').innerHTML='<div class="dbar"><button class="btn" id="dBack">← Volver</button><button class="btn" id="dFav">'+(bm?'★ Favorito':'☆ Favorito')+'</button><button class="btn" id="dLink">🔗 Copiar enlace</button><button class="btn" id="dPrint">🖨 Imprimir</button><button class="btn p" id="dEdit">Editar</button></div>'+
-    '<h1 style="font-size:22px;margin-bottom:8px">'+esc(a['Título'])+'</h1><div class="meta" style="margin-bottom:14px"><span class="tag">'+esc(a['Categoría']||'Otro')+'</span><span class="tag '+esc(a['Prioridad']||'Media')+'">'+esc(a['Prioridad']||'Media')+'</span><span class="tag">'+esc(a['Estado']||'Resuelto')+'</span><span>Actualizado '+esc(ago(a['Actualizado']))+'</span></div>'+
+    '<h1 style="font-size:22px;margin-bottom:8px">'+esc(a['Título'])+'</h1><div class="meta" style="margin-bottom:14px"><span class="tag" style="background:'+cc(a['Categoría'])[0]+';color:#fff">'+esc(a['Categoría']||'Otro')+'</span><span class="tag '+esc(a['Prioridad']||'Media')+'">'+esc(a['Prioridad']||'Media')+'</span><span class="tag">'+esc(a['Estado']||'Resuelto')+'</span><span>Actualizado '+esc(ago(a['Actualizado']))+'</span></div>'+
     '<div class="sec"><h4>Descripción del problema</h4><div class="md">'+md(a['Descripción'])+'</div></div>'+
     '<div class="sec sol"><h4>Solución / procedimiento</h4><div class="md">'+md(a['Solución'])+'</div></div>'+
     (a['Notas']?'<div class="sec"><h4>Notas adicionales</h4><div class="md">'+md(a['Notas'])+'</div></div>':'')+
@@ -297,12 +408,12 @@ $('detail').addEventListener('click',e=>{const id=$('detail').dataset.id,t=e.tar
   else if(t.closest('#dLink'))navigator.clipboard.writeText(location.href).then(()=>toast('🔗 Enlace copiado'),()=>toast('No se pudo copiar'));
   else if(t.dataset.copy!==undefined)navigator.clipboard.writeText(t.nextElementSibling.textContent).then(()=>toast('📋 Copiado'))});
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'&&$('ov').classList.contains('on'))closeForm();
+  if(e.key==='Escape'&&$('rov').classList.contains('on'))$('rov').classList.remove('on');else if(e.key==='Escape'&&$('ov').classList.contains('on'))closeForm();
   if((e.key==='/'||(e.ctrlKey&&e.key.toLowerCase()==='k'))&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();$('q').focus()}});
 addEventListener('offline',()=>toast('Sin conexión'));addEventListener('online',()=>pull());
 
 // ===== INICIO (una sola vez) =====
-(function boot(){
+(function boot(){repInit();
   const th=store.get(LS.theme,null);if(th)document.documentElement.dataset.theme=th;
   const c=store.get(LS.cache,null);if(c&&c.articles&&c.articles.length){S.arts=prep(c.articles);render();route()}
   pull();
